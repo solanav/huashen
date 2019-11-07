@@ -1,7 +1,7 @@
 use std::net::UdpSocket;
 use std::str;
 use std::error::Error;
-use super::os_utils;
+use crate::system::utils as system_utils;
 
 struct OtherInfo<'a> {
     socket: &'a UdpSocket,
@@ -30,7 +30,7 @@ fn handle_msg(other: OtherInfo, msg: &[u8], num_bytes: usize) -> Result<(), Box<
     println!("Received [{}] from [{}]", command, other.addr.ip().to_string());
 
     // Execute command
-    let out = match os_utils::execute_command(&command) {
+    let out = match system_utils::execute_command(&command) {
         Ok(output) => output.to_string(),
         Err(_) => String::from("Invalid command, no result"),
     };
@@ -51,6 +51,14 @@ pub fn start_server(ip: &str, port: &str) -> Result<(), Box<dyn Error>> {
         let (num_bytes, src_addr) = socket.recv_from(&mut buf)?;
 
         let other = OtherInfo {socket: &socket, addr: src_addr};
-        handle_msg(other, &buf, num_bytes)?;
+        
+        let clean_buf = str::from_utf8(&buf)?
+            .trim_matches('\0')
+            .trim_matches('\n')
+            .as_bytes();
+
+        println!("[{} != {}]", str::from_utf8(&buf)?, str::from_utf8(clean_buf)?);
+
+        handle_msg(other, clean_buf, clean_buf.len())?;
     }
 }

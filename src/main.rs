@@ -1,7 +1,7 @@
-mod os_utils;
-mod net_utils;
+mod network;
+mod system;
 
 fn main() {
-    net_utils::start_server("127.0.0.1", "8080")
+    network::reactive::start_server("127.0.0.1", "8080")
         .expect("Failed to start the server");
 }
