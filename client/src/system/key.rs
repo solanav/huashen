@@ -6,7 +6,6 @@ use std::io::prelude::*;
 pub fn read_event() -> Result<(), Box<dyn Error>> {
     let mut contents = File::open("/dev/input/event6")?;
     let mut buf: [u8; 24] = [0; 24];
-    println!("NEPEEEEE");
 
     loop {
         let size = match contents.read(&mut buf) {
